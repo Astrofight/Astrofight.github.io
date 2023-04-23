@@ -209,7 +209,18 @@ function shoot() {
   // create projectile element
   const projectile = document.createElement('div');
   projectile.classList.add('projectile');
+  
+  // create image element
+  const image = document.createElement('img');
+  image.src = 'path/to/image.png';
+  image.alt = 'Projectile Image';
+  
+  // append image to projectile div
+  projectile.appendChild(image);
+  
+  // append projectile div to body
   document.body.appendChild(projectile);
+
 
   // position projectile at shooting point
   const shootingPointPosition = shootingPoint.getBoundingClientRect();
