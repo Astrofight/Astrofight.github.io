@@ -1,0 +1,343 @@
+<!doctype html>
+<html> 
+ <head> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="preconnect" href="https://fonts.googleapis.com"> 
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&amp;family=Itim&amp;family=Josefin+Sans:wght@500&amp;display=swap" rel="stylesheet"> 
+  <title>Astro fight</title> 
+  <link rel="stylesheet" type="text/css" href="style.css"> 
+ <style type="text/css" id="dcoder_stylesheet">#myBtn{background-image: url('figtbg.jpg');
+text-align: center;
+font-size:2rem;}
+
+#myButton{border:none;
+width:200px;
+height:80px;
+border-radius:10px;
+background-color:black;
+color:white;
+font-weight:bold;
+font-size:2rem;}
+
+.stss{margin:60px;
+box-shadow:2px 3px 8px black;
+border-bottom:1px solid black;
+}
+@media only screen and (max-width: 480px) {
+  .stss {
+   margin:40px;
+   border:none;
+  }
+}
+
+
+.wd{display:none;}
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  padding-top: 50px;
+  height: 900px;
+  background-color: transparent;
+  font-weight:bold;
+}
+
+@media only screen and (max-width: 480px) {
+  .container {
+    height:500px;
+  }
+}
+
+.target {
+  position: absolute;
+  top: 30;
+  left: 0;
+  width: 120px;
+  height: 70px;
+ // background-color: #ff0000;
+  animation: move 5s infinite;
+}
+.target img{height:70px;
+width:120px;}
+
+@media only screen and (max-width: 480px) {
+  .target img {
+   height:40px;
+   width:50px;
+  }
+}
+
+.shooting-point {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  height: 80px;
+  //background-color: green;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.projectile {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height:50px;
+  border:2px solid black;
+  background-image: url('miss.png');
+ // background-color: red;
+  animation: shoot 0.5s;
+  animation-fill-mode: forwards;
+}
+media only screen and (max-width: 480px) {
+  .projectile {
+   height:20px;
+   width:5px;
+  }
+}
+
+.score {
+  position: absolute;
+  top: 10px;
+ // right: 10px;
+  font-size: 20px;
+  font-weight:bold;
+}
+
+.missed {
+  position: absolute;
+  top: 40px;
+  //right: 10px;
+  font-size: 20px;
+  font-weight:bold;
+}
+
+
+@keyframes move {
+  0% {
+    left: 0;
+  }
+
+  50% {
+    left: calc(100% - 50px);
+  }
+
+  100% {
+    left: 0;
+  }
+}
+
+@keyframes shoot {
+  0% {
+    bottom: 100%;
+  }
+
+  100% {
+    bottom: calc(100% - 50px);
+  }
+}
+
+//background
+.background {
+  background-image: url('background.jpg');
+  background-size: cover;
+  background-position: center;
+}</style></head> 
+ <body> 
+  <div class="wd" id="myDiv"> 
+   <div class="stss"> 
+    <div class="score">
+      Score: <span id="score">0</span> 
+    </div> 
+    <div class="missed">
+      Missed: <span id="missed">0</span> 
+    </div> 
+   </div> 
+   <div class="background"> <!-- Your content here --> 
+    <div class="container"> 
+     <div class="target"> 
+      <img src="ufo.png"> 
+     </div> 
+     <div class="shooting-point"> 
+      <img src="spaceship.png"> 
+     </div> 
+    </div> 
+   </div> 
+  </div> 
+  <div id="myBtn"> 
+   <h1>AstroFight</h1> 
+   <p>Play Astro fight game. <br> and fight with aliens <br>also increase your focus level with my game </p> 
+   <br> <button id="myButton">Play now</button> 
+  </div> 
+ 
+<script type="text/javascript" id="dcoder_script">let score = 0;
+let missed = 0;
+const target = document.querySelector('.target');
+const shootingPoint = document.querySelector('.shooting-point');
+const scoreElement = document.querySelector('#score');
+const missedElement = document.querySelector('#missed');
+
+shootingPoint.addEventListener('click', shoot);
+
+function shoot() {
+  // create projectile element
+  const projectile = document.createElement('div');
+  projectile.classList.add('projectile');
+  document.body.appendChild(projectile);
+
+  // position projectile at shooting point
+  const shootingPointPosition = shootingPoint.getBoundingClientRect();
+  const projectileStartPosition = {
+    top: shootingPointPosition.top - 20,
+    left: shootingPointPosition.left + (shootingPointPosition.width / 2),
+  };
+  projectile.style.left = `${projectileStartPosition.left}px`;
+  projectile.style.top = `${projectileStartPosition.top}px`;
+
+  // animate projectile moving vertically in a straight line
+  const projectileEndPosition = {
+    top: 0,
+    left: projectileStartPosition.left,
+  };
+  animateProjectile(projectile, projectileStartPosition, projectileEndPosition, () => {
+    // check if projectile hits target
+    const targetPosition = target.getBoundingClientRect();
+    const projectilePosition = projectile.getBoundingClientRect();
+    if (isHit(projectilePosition, targetPosition)) {
+      score++;
+      scoreElement.textContent = score;
+      target.style.animationDuration = `${parseFloat(window.getComputedStyle(target).animationDuration) * 0.97}s`;
+    } else {
+      missed++;
+      missedElement.textContent = missed;
+      if (missed >= 3) {
+        endGame();
+      }
+    }
+    // remove projectile after checking hit
+    projectile.remove();
+  });
+}
+
+function isHit(projectilePosition, targetPosition) {
+  return (
+    projectilePosition.left >= targetPosition.left &&
+    projectilePosition.right <= targetPosition.right &&
+    projectilePosition.top >= targetPosition.top &&
+    projectilePosition.bottom <= targetPosition.bottom
+  );
+}
+
+function animateProjectile(projectile, startPosition, endPosition, callback) {
+  const animationDuration = 100;
+  const animationStartTime = performance.now();
+  const distanceX = endPosition.left - startPosition.left;
+  const distanceY = endPosition.top - startPosition.top;
+
+  function step() {
+    const timeFraction = Math.min(1, (performance.now() - animationStartTime) / animationDuration);
+    const x = startPosition.left + distanceX * timeFraction;
+    const y = startPosition.top + distanceY * timeFraction;
+    projectile.style.left = `${x}px`;
+    projectile.style.top = `${y}px`;
+    if (timeFraction === 1) {
+      callback();
+    } else {
+      requestAnimationFrame(step);
+    }
+  }
+
+  requestAnimationFrame(step);
+}
+
+function endGame() {
+  const popup = window.open('', '_blank', 'width=400,height=200');
+  popup.document.write(`
+    <html>
+      <head>
+        <title>Game Over</title>
+        <style>
+          body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+          }
+          h2 {
+            font-size: 2em;
+            margin-top: 0;
+          }
+          p {
+            font-size: 1.5em;
+            margin-top: 0;
+            margin-bottom: 1em;
+          }
+          button {
+            font-size: 1.2em;
+            padding: 10px 20px;
+            border: none;
+            background-color: #1abc9c;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+          button:hover {
+            background-color: #148f77;
+          }
+        </style>
+      </head>
+      <body>
+        <h2>Game Over!</h2>
+        <p>Your score is ${score}.</p>
+        <button onclick="location.reload()">Restart</button>
+      </body>
+    </html>
+  `);
+}
+
+
+//hide and find
+var myButton = document.getElementById("myButton");
+var myDiv = document.getElementById("myDiv");
+var myBtn = document.getElementById("myBtn")
+myButton.addEventListener("click", function() {
+  myButton.style.display = "none"; /* hide the button */
+  myDiv.style.display = "block"; /* show the div */
+  myBtn.style.display = "none";
+});
+
+//sounds
+
+// select the shooting-point div element
+
+// select the projectile and target elements
+var projectile = document.querySelector('.projectile');
+
+// select the background audio element and set it to play on a loop
+var backgroundAudio = new Audio('background_sound.mp3');
+backgroundAudio.loop = true;
+backgroundAudio.play();
+
+// add a click event listener to the shooting-point element
+shootingPoint.addEventListener('click', function() {
+  // play the shooting sound
+  var shootingSound = new Audio('shooting_sound.mp3');
+  shootingSound.play();
+});
+
+// add a mutation observer to the target element to watch for changes to its classList
+var targetObserver = new MutationObserver(function(mutations) {
+  mutations.forEach(function(mutation) {
+    if (mutation.attributeName === 'class' && mutation.target.classList.contains('hit')) {
+      // play the hit sound
+      var hitSound = new Audio('shooting_sound.mp3');
+      hitSound.play();
+    }
+  });
+});
+
+// start observing changes to the target element's classList
+targetObserver.observe(target, { attributes: true });</script></body></html>
